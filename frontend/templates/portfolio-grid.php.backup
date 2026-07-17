@@ -1,0 +1,446 @@
+<?php
+/**
+ * Template: portfolio grid + filter bar.
+ *
+ * Expected variables in scope (set by EPSW_Shortcode::render()):
+ *
+ * @var string[] $categories   Pre-selected category slugs from shortcode atts.
+ * @var string[] $technologies Pre-selected technology slugs from shortcode atts.
+ * @var int      $columns      Number of grid columns (1-4).
+ * @var int      $per_page     Items per page / load-more batch size.
+ * @var string   $instance_id  Unique DOM id for this shortcode instance.
+ *
+ * @package PortfolioShowcase
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+$all_categories   = get_terms( array( 'taxonomy' => 'epsw_category', 'hide_empty' => true ) );
+$all_technologies = get_terms( array( 'taxonomy' => 'epsw_technology', 'hide_empty' => true ) );
+
+$initial_args  = EPSW_Shortcode::build_query_args( $categories, $technologies, $per_page, 1 );
+$initial_query = new WP_Query( $initial_args );
+?>
+<div
+	id="<?php echo esc_attr( $instance_id ); ?>"
+	class="epsw-portfolio epsw-columns-<?php echo esc_attr( $columns ); ?>"
+	data-columns="<?php echo esc_attr( $columns ); ?>"
+	data-per-page="<?php echo esc_attr( $per_page ); ?>"
+	data-preset-categories="<?php echo esc_attr( implode( ',', $categories ) ); ?>"
+	data-preset-technologies="<?php echo esc_attr( implode( ',', $technologies ) ); ?>"
+>
+
+	<?php if ( ! is_wp_error( $all_categories ) && ! is_wp_error( $all_technologies ) && ( ! empty( $all_categories ) || ! empty( $all_technologies ) ) ) : ?>
+	<!-- Desktop Filter Bar -->
+	<div class="epsw-filter-bar epsw-filter-desktop" role="region" aria-label="<?php esc_attr_e( 'Project filters', 'portfolio-showcase' ); ?>">
+		<div class="epsw-filter-header">
+			<div class="epsw-filter-title">
+				<svg class="epsw-filter-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+					<line x1="4" y1="21" x2="4" y2="14"></line>
+					<line x1="4" y1="10" x2="4" y2="3"></line>
+					<line x1="12" y1="21" x2="12" y2="12"></line>
+					<line x1="12" y1="8" x2="12" y2="3"></line>
+					<line x1="20" y1="21" x2="20" y2="16"></line>
+					<line x1="20" y1="12" x2="20" y2="3"></line>
+					<line x1="1" y1="14" x2="7" y2="14"></line>
+					<line x1="9" y1="8" x2="15" y2="8"></line>
+					<line x1="17" y1="16" x2="23" y2="16"></line>
+				</svg>
+				<?php esc_html_e( 'Filters', 'portfolio-showcase' ); ?>
+			</div>
+		</div>
+
+		<div class="epsw-filter-content">
+			<?php if ( ! empty( $all_categories ) ) : ?>
+			<div class="epsw-filter-section">
+				<label class="epsw-filter-label"><?php esc_html_e( 'Category', 'portfolio-showcase' ); ?></label>
+				<div class="epsw-filter-dropdown" data-filter-type="category">
+					<button type="button" class="epsw-filter-select">
+						<span class="epsw-filter-select-icon">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<rect x="3" y="3" width="7" height="7"></rect>
+								<rect x="14" y="3" width="7" height="7"></rect>
+								<rect x="14" y="14" width="7" height="7"></rect>
+								<rect x="3" y="14" width="7" height="7"></rect>
+							</svg>
+						</span>
+						<span class="epsw-filter-select-text"><?php esc_html_e( 'All Categories', 'portfolio-showcase' ); ?></span>
+						<svg class="epsw-filter-select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<polyline points="6 9 12 15 18 9"></polyline>
+						</svg>
+					</button>
+					<div class="epsw-filter-menu">
+						<button type="button" class="epsw-filter-option is-active" data-slug="">
+							<span class="epsw-filter-option-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<rect x="3" y="3" width="7" height="7"></rect>
+									<rect x="14" y="3" width="7" height="7"></rect>
+									<rect x="14" y="14" width="7" height="7"></rect>
+									<rect x="3" y="14" width="7" height="7"></rect>
+								</svg>
+							</span>
+							<?php esc_html_e( 'All Categories', 'portfolio-showcase' ); ?>
+						</button>
+						<?php foreach ( $all_categories as $term ) : ?>
+							<?php
+							$icon_id  = get_term_meta( $term->term_id, 'epsw_icon_id', true );
+							$icon_url = $icon_id ? wp_get_attachment_url( $icon_id ) : '';
+							?>
+							<button
+								type="button"
+								class="epsw-filter-option<?php echo in_array( $term->slug, $categories, true ) ? ' is-active' : ''; ?>"
+								data-slug="<?php echo esc_attr( $term->slug ); ?>"
+								data-name="<?php echo esc_attr( $term->name ); ?>"
+							>
+								<?php if ( $icon_url ) : ?>
+									<span class="epsw-filter-option-icon">
+										<img src="<?php echo esc_url( $icon_url ); ?>" alt="" />
+									</span>
+								<?php else : ?>
+									<span class="epsw-filter-option-icon">
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+										</svg>
+									</span>
+								<?php endif; ?>
+								<?php echo esc_html( $term->name ); ?>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			</div>
+			<?php endif; ?>
+
+			<?php if ( ! empty( $all_technologies ) ) : ?>
+			<div class="epsw-filter-section">
+				<label class="epsw-filter-label"><?php esc_html_e( 'Technology', 'portfolio-showcase' ); ?></label>
+				<div class="epsw-filter-dropdown" data-filter-type="technology">
+					<button type="button" class="epsw-filter-select">
+						<span class="epsw-filter-select-icon">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+								<polyline points="2 17 12 22 22 17"></polyline>
+								<polyline points="2 12 12 17 22 12"></polyline>
+							</svg>
+						</span>
+						<span class="epsw-filter-select-text"><?php esc_html_e( 'All Technologies', 'portfolio-showcase' ); ?></span>
+						<svg class="epsw-filter-select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<polyline points="6 9 12 15 18 9"></polyline>
+						</svg>
+					</button>
+					<div class="epsw-filter-menu">
+						<button type="button" class="epsw-filter-option is-active" data-slug="">
+							<span class="epsw-filter-option-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+									<polyline points="2 17 12 22 22 17"></polyline>
+									<polyline points="2 12 12 17 22 12"></polyline>
+								</svg>
+							</span>
+							<?php esc_html_e( 'All Technologies', 'portfolio-showcase' ); ?>
+						</button>
+						<?php foreach ( $all_technologies as $term ) : ?>
+							<?php
+							$icon_id  = get_term_meta( $term->term_id, 'epsw_icon_id', true );
+							$icon_url = $icon_id ? wp_get_attachment_url( $icon_id ) : '';
+							?>
+							<button
+								type="button"
+								class="epsw-filter-option<?php echo in_array( $term->slug, $technologies, true ) ? ' is-active' : ''; ?>"
+								data-slug="<?php echo esc_attr( $term->slug ); ?>"
+								data-name="<?php echo esc_attr( $term->name ); ?>"
+							>
+								<?php if ( $icon_url ) : ?>
+									<span class="epsw-filter-option-icon">
+										<img src="<?php echo esc_url( $icon_url ); ?>" alt="" />
+									</span>
+								<?php else : ?>
+									<span class="epsw-filter-option-icon">
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<polyline points="16 18 22 12 16 6"></polyline>
+											<polyline points="8 6 2 12 8 18"></polyline>
+										</svg>
+									</span>
+								<?php endif; ?>
+								<?php echo esc_html( $term->name ); ?>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			</div>
+			<?php endif; ?>
+
+			<div class="epsw-filter-actions">
+				<button type="button" class="epsw-filter-btn epsw-filter-btn-clear">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<line x1="18" y1="6" x2="6" y2="18"></line>
+						<line x1="6" y1="6" x2="18" y2="18"></line>
+					</svg>
+					<?php esc_html_e( 'Clear All', 'portfolio-showcase' ); ?>
+				</button>
+				<button type="button" class="epsw-filter-btn epsw-filter-btn-apply">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<polyline points="20 6 9 17 4 12"></polyline>
+					</svg>
+					<?php esc_html_e( 'Apply Filters', 'portfolio-showcase' ); ?>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Mobile Filter Bar -->
+	<div class="epsw-filter-bar epsw-filter-mobile" role="region" aria-label="<?php esc_attr_e( 'Project filters', 'portfolio-showcase' ); ?>">
+		<button type="button" class="epsw-filter-mobile-toggle">
+			<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<line x1="4" y1="21" x2="4" y2="14"></line>
+				<line x1="4" y1="10" x2="4" y2="3"></line>
+				<line x1="12" y1="21" x2="12" y2="12"></line>
+				<line x1="12" y1="8" x2="12" y2="3"></line>
+				<line x1="20" y1="21" x2="20" y2="16"></line>
+				<line x1="20" y1="12" x2="20" y2="3"></line>
+				<line x1="1" y1="14" x2="7" y2="14"></line>
+				<line x1="9" y1="8" x2="15" y2="8"></line>
+				<line x1="17" y1="16" x2="23" y2="16"></line>
+			</svg>
+			<span><?php esc_html_e( 'Filters', 'portfolio-showcase' ); ?></span>
+			<svg class="epsw-filter-mobile-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<polyline points="6 9 12 15 18 9"></polyline>
+			</svg>
+		</button>
+
+		<div class="epsw-filter-mobile-panel">
+			<?php if ( ! empty( $all_categories ) ) : ?>
+			<div class="epsw-filter-section">
+				<label class="epsw-filter-label"><?php esc_html_e( 'Category', 'portfolio-showcase' ); ?></label>
+				<div class="epsw-filter-dropdown" data-filter-type="category">
+					<button type="button" class="epsw-filter-select">
+						<span class="epsw-filter-select-icon">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<rect x="3" y="3" width="7" height="7"></rect>
+								<rect x="14" y="3" width="7" height="7"></rect>
+								<rect x="14" y="14" width="7" height="7"></rect>
+								<rect x="3" y="14" width="7" height="7"></rect>
+							</svg>
+						</span>
+						<span class="epsw-filter-select-text"><?php esc_html_e( 'All Categories', 'portfolio-showcase' ); ?></span>
+						<svg class="epsw-filter-select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<polyline points="6 9 12 15 18 9"></polyline>
+						</svg>
+					</button>
+					<div class="epsw-filter-menu">
+						<button type="button" class="epsw-filter-option is-active" data-slug="">
+							<span class="epsw-filter-option-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<rect x="3" y="3" width="7" height="7"></rect>
+									<rect x="14" y="3" width="7" height="7"></rect>
+									<rect x="14" y="14" width="7" height="7"></rect>
+									<rect x="3" y="14" width="7" height="7"></rect>
+								</svg>
+							</span>
+							<?php esc_html_e( 'All Categories', 'portfolio-showcase' ); ?>
+						</button>
+						<?php foreach ( $all_categories as $term ) : ?>
+							<?php
+							$icon_id  = get_term_meta( $term->term_id, 'epsw_icon_id', true );
+							$icon_url = $icon_id ? wp_get_attachment_url( $icon_id ) : '';
+							?>
+							<button
+								type="button"
+								class="epsw-filter-option<?php echo in_array( $term->slug, $categories, true ) ? ' is-active' : ''; ?>"
+								data-slug="<?php echo esc_attr( $term->slug ); ?>"
+								data-name="<?php echo esc_attr( $term->name ); ?>"
+							>
+								<?php if ( $icon_url ) : ?>
+									<span class="epsw-filter-option-icon">
+										<img src="<?php echo esc_url( $icon_url ); ?>" alt="" />
+									</span>
+								<?php else : ?>
+									<span class="epsw-filter-option-icon">
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+										</svg>
+									</span>
+								<?php endif; ?>
+								<?php echo esc_html( $term->name ); ?>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			</div>
+			<?php endif; ?>
+
+			<?php if ( ! empty( $all_technologies ) ) : ?>
+			<div class="epsw-filter-section">
+				<label class="epsw-filter-label"><?php esc_html_e( 'Technology', 'portfolio-showcase' ); ?></label>
+				<div class="epsw-filter-dropdown" data-filter-type="technology">
+					<button type="button" class="epsw-filter-select">
+						<span class="epsw-filter-select-icon">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+								<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+								<polyline points="2 17 12 22 22 17"></polyline>
+								<polyline points="2 12 12 17 22 12"></polyline>
+							</svg>
+						</span>
+						<span class="epsw-filter-select-text"><?php esc_html_e( 'All Technologies', 'portfolio-showcase' ); ?></span>
+						<svg class="epsw-filter-select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+							<polyline points="6 9 12 15 18 9"></polyline>
+						</svg>
+					</button>
+					<div class="epsw-filter-menu">
+						<button type="button" class="epsw-filter-option is-active" data-slug="">
+							<span class="epsw-filter-option-icon">
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+									<polyline points="2 17 12 22 22 17"></polyline>
+									<polyline points="2 12 12 17 22 12"></polyline>
+								</svg>
+							</span>
+							<?php esc_html_e( 'All Technologies', 'portfolio-showcase' ); ?>
+						</button>
+						<?php foreach ( $all_technologies as $term ) : ?>
+							<?php
+							$icon_id  = get_term_meta( $term->term_id, 'epsw_icon_id', true );
+							$icon_url = $icon_id ? wp_get_attachment_url( $icon_id ) : '';
+							?>
+							<button
+								type="button"
+								class="epsw-filter-option<?php echo in_array( $term->slug, $technologies, true ) ? ' is-active' : ''; ?>"
+								data-slug="<?php echo esc_attr( $term->slug ); ?>"
+								data-name="<?php echo esc_attr( $term->name ); ?>"
+							>
+								<?php if ( $icon_url ) : ?>
+									<span class="epsw-filter-option-icon">
+										<img src="<?php echo esc_url( $icon_url ); ?>" alt="" />
+									</span>
+								<?php else : ?>
+									<span class="epsw-filter-option-icon">
+										<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+											<polyline points="16 18 22 12 16 6"></polyline>
+											<polyline points="8 6 2 12 8 18"></polyline>
+										</svg>
+									</span>
+								<?php endif; ?>
+								<?php echo esc_html( $term->name ); ?>
+							</button>
+						<?php endforeach; ?>
+					</div>
+				</div>
+			</div>
+			<?php endif; ?>
+
+			<div class="epsw-filter-actions">
+				<button type="button" class="epsw-filter-btn epsw-filter-btn-apply">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<polyline points="20 6 9 17 4 12"></polyline>
+					</svg>
+					<?php esc_html_e( 'Apply Filters', 'portfolio-showcase' ); ?>
+				</button>
+				<button type="button" class="epsw-filter-btn epsw-filter-btn-clear">
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<line x1="18" y1="6" x2="6" y2="18"></line>
+						<line x1="6" y1="6" x2="18" y2="18"></line>
+					</svg>
+					<?php esc_html_e( 'Clear All', 'portfolio-showcase' ); ?>
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Popular Sections -->
+	<div class="epsw-popular-sections">
+		<?php if ( ! empty( $all_categories ) && count( $all_categories ) > 0 ) : ?>
+		<div class="epsw-popular-section">
+			<div class="epsw-popular-header">
+				<h3 class="epsw-popular-title"><?php esc_html_e( 'Popular Categories', 'portfolio-showcase' ); ?></h3>
+				<button type="button" class="epsw-popular-view-all" data-type="category">
+					<?php esc_html_e( 'View All', 'portfolio-showcase' ); ?>
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<polyline points="9 18 15 12 9 6"></polyline>
+					</svg>
+				</button>
+			</div>
+			<div class="epsw-popular-grid">
+				<?php
+				$popular_categories = array_slice( $all_categories, 0, 6 );
+				foreach ( $popular_categories as $term ) :
+					$icon_id  = get_term_meta( $term->term_id, 'epsw_icon_id', true );
+					$icon_url = $icon_id ? wp_get_attachment_url( $icon_id ) : '';
+					?>
+					<button type="button" class="epsw-popular-chip" data-filter-type="category" data-slug="<?php echo esc_attr( $term->slug ); ?>" data-name="<?php echo esc_attr( $term->name ); ?>">
+						<?php if ( $icon_url ) : ?>
+							<span class="epsw-popular-chip-icon">
+								<img src="<?php echo esc_url( $icon_url ); ?>" alt="" />
+							</span>
+						<?php endif; ?>
+						<span class="epsw-popular-chip-text"><?php echo esc_html( $term->name ); ?></span>
+						<span class="epsw-popular-chip-count"><?php echo esc_html( $term->count ); ?></span>
+					</button>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		<?php endif; ?>
+
+		<?php if ( ! empty( $all_technologies ) && count( $all_technologies ) > 0 ) : ?>
+		<div class="epsw-popular-section">
+			<div class="epsw-popular-header">
+				<h3 class="epsw-popular-title"><?php esc_html_e( 'Popular Technologies', 'portfolio-showcase' ); ?></h3>
+				<button type="button" class="epsw-popular-view-all" data-type="technology">
+					<?php esc_html_e( 'View All', 'portfolio-showcase' ); ?>
+					<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<polyline points="9 18 15 12 9 6"></polyline>
+					</svg>
+				</button>
+			</div>
+			<div class="epsw-popular-grid">
+				<?php
+				$popular_technologies = array_slice( $all_technologies, 0, 6 );
+				foreach ( $popular_technologies as $term ) :
+					$icon_id  = get_term_meta( $term->term_id, 'epsw_icon_id', true );
+					$icon_url = $icon_id ? wp_get_attachment_url( $icon_id ) : '';
+					?>
+					<button type="button" class="epsw-popular-chip" data-filter-type="technology" data-slug="<?php echo esc_attr( $term->slug ); ?>" data-name="<?php echo esc_attr( $term->name ); ?>">
+						<?php if ( $icon_url ) : ?>
+							<span class="epsw-popular-chip-icon">
+								<img src="<?php echo esc_url( $icon_url ); ?>" alt="" />
+							</span>
+						<?php endif; ?>
+						<span class="epsw-popular-chip-text"><?php echo esc_html( $term->name ); ?></span>
+						<span class="epsw-popular-chip-count"><?php echo esc_html( $term->count ); ?></span>
+					</button>
+				<?php endforeach; ?>
+			</div>
+		</div>
+		<?php endif; ?>
+	</div>
+	<?php endif; ?>
+
+	<div class="epsw-grid-wrapper">
+		<div class="epsw-grid" data-columns="<?php echo esc_attr( $columns ); ?>">
+			<?php
+			if ( $initial_query->have_posts() ) :
+				while ( $initial_query->have_posts() ) :
+					$initial_query->the_post();
+					$project = EPSW_Helpers::get_project_data( get_the_ID() );
+					include EPSW_PLUGIN_DIR . 'frontend/templates/project-card.php';
+				endwhile;
+				wp_reset_postdata();
+			else :
+				?>
+				<p class="epsw-no-results"><?php esc_html_e( 'No projects found.', 'portfolio-showcase' ); ?></p>
+				<?php
+			endif;
+			?>
+		</div>
+
+		<?php if ( $initial_query->max_num_pages > 1 ) : ?>
+		<div class="epsw-load-more-wrap">
+			<button type="button" class="epsw-btn epsw-btn-primary epsw-load-more" data-page="1" data-max-pages="<?php echo esc_attr( $initial_query->max_num_pages ); ?>">
+				<span class="epsw-btn-label"><?php esc_html_e( 'Load More', 'portfolio-showcase' ); ?></span>
+				<span class="epsw-spinner" aria-hidden="true"></span>
+			</button>
+		</div>
+		<?php endif; ?>
+	</div>
+</div>

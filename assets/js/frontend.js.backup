@@ -1,0 +1,416 @@
+/*!
+ * Estel Portfolio Showcase — Frontend JS (vanilla, no dependencies)
+ */
+( function () {
+	'use strict';
+
+	if ( typeof window.EPSW_Frontend === 'undefined' ) {
+		return;
+	}
+
+	var CONFIG = window.EPSW_Frontend;
+
+	/**
+	 * Initializes every [estel_portfolio] instance on the page.
+	 */
+	function init() {
+		var instances = document.querySelectorAll( '.epsw-portfolio' );
+		instances.forEach( setupInstance );
+	}
+
+	/**
+	 * Wires up filter chips + load more button for one shortcode instance.
+	 *
+	 * @param {HTMLElement} root Root .epsw-portfolio element.
+	 */
+	function setupInstance( root ) {
+		var state = {
+			categories: splitPreset( root.dataset.presetCategories ),
+			technologies: splitPreset( root.dataset.presetTechnologies ),
+			columns: parseInt( root.dataset.columns, 10 ) || 3,
+			perPage: parseInt( root.dataset.perPage, 10 ) || 9,
+			paged: 1,
+			maxPages: 1,
+		};
+
+		var grid = root.querySelector( '.epsw-grid' );
+		var loadMoreBtn = root.querySelector( '.epsw-load-more' );
+
+		if ( loadMoreBtn ) {
+			state.maxPages = parseInt( loadMoreBtn.dataset.maxPages, 10 ) || 1;
+			state.paged = parseInt( loadMoreBtn.dataset.page, 10 ) || 1;
+		}
+
+		// Setup dropdowns
+		setupDropdowns( root );
+
+		// Setup popular chips
+		setupPopularChips( root, state, grid );
+
+		// Setup filter action buttons
+		setupFilterButtons( root, state, grid );
+
+		// Setup mobile toggle
+		setupMobileToggle( root );
+
+		if ( loadMoreBtn ) {
+			loadMoreBtn.addEventListener( 'click', function () {
+				handleLoadMore( root, loadMoreBtn, state, grid );
+			} );
+		}
+	}
+
+	/**
+	 * Setup dropdown interactions for filter selects.
+	 *
+	 * @param {HTMLElement} root Instance root.
+	 */
+	function setupDropdowns( root ) {
+		var dropdowns = root.querySelectorAll( '.epsw-filter-dropdown' );
+
+		dropdowns.forEach( function ( dropdown ) {
+			var select = dropdown.querySelector( '.epsw-filter-select' );
+			var menu = dropdown.querySelector( '.epsw-filter-menu' );
+			var options = dropdown.querySelectorAll( '.epsw-filter-option' );
+
+			if ( ! select || ! menu ) {
+				return;
+			}
+
+			// Toggle dropdown
+			select.addEventListener( 'click', function ( e ) {
+				e.stopPropagation();
+				var isOpen = dropdown.classList.contains( 'is-open' );
+
+				// Close all dropdowns
+				root.querySelectorAll( '.epsw-filter-dropdown' ).forEach( function ( d ) {
+					d.classList.remove( 'is-open' );
+				} );
+
+				// Toggle current
+				if ( ! isOpen ) {
+					dropdown.classList.add( 'is-open' );
+				}
+			} );
+
+			// Handle option selection
+			options.forEach( function ( option ) {
+				option.addEventListener( 'click', function () {
+					// Remove active from all options
+					options.forEach( function ( opt ) {
+						opt.classList.remove( 'is-active' );
+					} );
+
+					// Set active on clicked option
+					option.classList.add( 'is-active' );
+
+					// Update select button text and icon
+					var selectText = select.querySelector( '.epsw-filter-select-text' );
+					var selectIcon = select.querySelector( '.epsw-filter-select-icon' );
+					var optionIcon = option.querySelector( '.epsw-filter-option-icon' );
+
+					if ( selectText ) {
+						selectText.textContent = option.dataset.name || option.textContent.trim();
+					}
+
+					if ( selectIcon && optionIcon ) {
+						selectIcon.innerHTML = optionIcon.innerHTML;
+					}
+
+					// Close dropdown
+					dropdown.classList.remove( 'is-open' );
+				} );
+			} );
+		} );
+
+		// Close dropdowns when clicking outside
+		document.addEventListener( 'click', function ( e ) {
+			if ( ! e.target.closest( '.epsw-filter-dropdown' ) ) {
+				root.querySelectorAll( '.epsw-filter-dropdown' ).forEach( function ( d ) {
+					d.classList.remove( 'is-open' );
+				} );
+			}
+		} );
+	}
+
+	/**
+	 * Setup popular chip interactions.
+	 *
+	 * @param {HTMLElement} root  Instance root.
+	 * @param {Object}      state Instance state.
+	 * @param {HTMLElement} grid  Grid element.
+	 */
+	function setupPopularChips( root, state, grid ) {
+		var chips = root.querySelectorAll( '.epsw-popular-chip' );
+
+		chips.forEach( function ( chip ) {
+			chip.addEventListener( 'click', function () {
+				var filterType = chip.dataset.filterType;
+				var slug = chip.dataset.slug;
+				var name = chip.dataset.name;
+
+				if ( ! filterType || ! slug ) {
+					return;
+				}
+
+				// Find the corresponding dropdown and select the option
+				var dropdown = root.querySelector( '.epsw-filter-dropdown[data-filter-type="' + filterType + '"]' );
+				if ( ! dropdown ) {
+					return;
+				}
+
+				var option = dropdown.querySelector( '.epsw-filter-option[data-slug="' + slug + '"]' );
+				if ( option ) {
+					// Trigger option selection
+					option.click();
+
+					// Update state and fetch
+					if ( 'category' === filterType ) {
+						state.categories = [ slug ];
+					} else if ( 'technology' === filterType ) {
+						state.technologies = [ slug ];
+					}
+
+					state.paged = 1;
+					fetchProjects( root, state, grid, false );
+				}
+			} );
+		} );
+
+		// View All buttons
+		var viewAllButtons = root.querySelectorAll( '.epsw-popular-view-all' );
+		viewAllButtons.forEach( function ( btn ) {
+			btn.addEventListener( 'click', function () {
+				var filterType = btn.dataset.type;
+				if ( ! filterType ) {
+					return;
+				}
+
+				var dropdown = root.querySelector( '.epsw-filter-dropdown[data-filter-type="' + filterType + '"]' );
+				if ( dropdown ) {
+					var select = dropdown.querySelector( '.epsw-filter-select' );
+					if ( select ) {
+						dropdown.classList.add( 'is-open' );
+						select.focus();
+					}
+				}
+			} );
+		} );
+	}
+
+	/**
+	 * Setup filter action buttons (Apply and Clear).
+	 *
+	 * @param {HTMLElement} root  Instance root.
+	 * @param {Object}      state Instance state.
+	 * @param {HTMLElement} grid  Grid element.
+	 */
+	function setupFilterButtons( root, state, grid ) {
+		var applyButtons = root.querySelectorAll( '.epsw-filter-btn-apply' );
+		var clearButtons = root.querySelectorAll( '.epsw-filter-btn-clear' );
+
+		// Apply Filters
+		applyButtons.forEach( function ( btn ) {
+			btn.addEventListener( 'click', function () {
+				// Get current selections from dropdowns
+				var categoryDropdown = root.querySelector( '.epsw-filter-dropdown[data-filter-type="category"]' );
+				var technologyDropdown = root.querySelector( '.epsw-filter-dropdown[data-filter-type="technology"]' );
+
+				if ( categoryDropdown ) {
+					var activeCategory = categoryDropdown.querySelector( '.epsw-filter-option.is-active' );
+					state.categories = activeCategory && activeCategory.dataset.slug ? [ activeCategory.dataset.slug ] : [];
+				}
+
+				if ( technologyDropdown ) {
+					var activeTechnology = technologyDropdown.querySelector( '.epsw-filter-option.is-active' );
+					state.technologies = activeTechnology && activeTechnology.dataset.slug ? [ activeTechnology.dataset.slug ] : [];
+				}
+
+				state.paged = 1;
+				fetchProjects( root, state, grid, false );
+
+				// Close mobile panel if open
+				var mobileFilter = root.querySelector( '.epsw-filter-mobile' );
+				if ( mobileFilter ) {
+					mobileFilter.classList.remove( 'is-open' );
+				}
+			} );
+		} );
+
+		// Clear All Filters
+		clearButtons.forEach( function ( btn ) {
+			btn.addEventListener( 'click', function () {
+				// Reset all dropdowns to "All"
+				var dropdowns = root.querySelectorAll( '.epsw-filter-dropdown' );
+
+				dropdowns.forEach( function ( dropdown ) {
+					var options = dropdown.querySelectorAll( '.epsw-filter-option' );
+					var firstOption = options[0]; // "All" option
+
+					// Remove active from all
+					options.forEach( function ( opt ) {
+						opt.classList.remove( 'is-active' );
+					} );
+
+					// Set first option as active
+					if ( firstOption ) {
+						firstOption.classList.add( 'is-active' );
+
+						// Update select button
+						var select = dropdown.querySelector( '.epsw-filter-select' );
+						var selectText = select.querySelector( '.epsw-filter-select-text' );
+						var selectIcon = select.querySelector( '.epsw-filter-select-icon' );
+						var firstIcon = firstOption.querySelector( '.epsw-filter-option-icon' );
+
+						if ( selectText ) {
+							selectText.textContent = firstOption.textContent.trim();
+						}
+
+						if ( selectIcon && firstIcon ) {
+							selectIcon.innerHTML = firstIcon.innerHTML;
+						}
+					}
+				} );
+
+				// Reset state and fetch all projects
+				state.categories = [];
+				state.technologies = [];
+				state.paged = 1;
+				fetchProjects( root, state, grid, false );
+			} );
+		} );
+	}
+
+	/**
+	 * Setup mobile filter toggle.
+	 *
+	 * @param {HTMLElement} root Instance root.
+	 */
+	function setupMobileToggle( root ) {
+		var mobileFilter = root.querySelector( '.epsw-filter-mobile' );
+		if ( ! mobileFilter ) {
+			return;
+		}
+
+		var toggle = mobileFilter.querySelector( '.epsw-filter-mobile-toggle' );
+		if ( ! toggle ) {
+			return;
+		}
+
+		toggle.addEventListener( 'click', function () {
+			mobileFilter.classList.toggle( 'is-open' );
+		} );
+	}
+
+	/**
+	 * Splits a comma separated preset attribute into an array, ignoring
+	 * empty strings.
+	 *
+	 * @param {string} value Raw dataset value.
+	 * @return {string[]}
+	 */
+	function splitPreset( value ) {
+		if ( ! value ) {
+			return [];
+		}
+		return value.split( ',' ).filter( Boolean );
+	}
+
+	/**
+	 * Handles the Load More button: fetches the next page and appends
+	 * results instead of replacing the grid.
+	 *
+	 * @param {HTMLElement} root Instance root.
+	 * @param {HTMLElement} btn  Load more button.
+	 * @param {Object}      state Instance state.
+	 * @param {HTMLElement} grid Grid element.
+	 */
+	function handleLoadMore( root, btn, state, grid ) {
+		if ( btn.classList.contains( 'is-loading' ) ) {
+			return;
+		}
+
+		state.paged += 1;
+		btn.classList.add( 'is-loading' );
+
+		fetchProjects( root, state, grid, true, function () {
+			btn.classList.remove( 'is-loading' );
+
+			if ( state.paged >= state.maxPages ) {
+				btn.parentElement.remove();
+			} else {
+				btn.dataset.page = String( state.paged );
+			}
+		} );
+	}
+
+	/**
+	 * Performs the AJAX request to fetch filtered/paginated projects.
+	 *
+	 * @param {HTMLElement}  root   Instance root.
+	 * @param {Object}       state  Instance state.
+	 * @param {HTMLElement}  grid   Grid element to update.
+	 * @param {boolean}      append Whether to append (Load More) or replace (filter change).
+	 * @param {Function}     [done] Optional callback invoked after completion.
+	 */
+	function fetchProjects( root, state, grid, append, done ) {
+		if ( ! append ) {
+			grid.classList.add( 'is-filtering' );
+		}
+
+		var formData = new FormData();
+		formData.append( 'action', 'epsw_filter_projects' );
+		formData.append( 'nonce', CONFIG.nonce );
+		formData.append( 'columns', state.columns );
+		formData.append( 'per_page', state.perPage );
+		formData.append( 'paged', state.paged );
+
+		state.categories.forEach( function ( slug ) {
+			formData.append( 'categories[]', slug );
+		} );
+		state.technologies.forEach( function ( slug ) {
+			formData.append( 'technologies[]', slug );
+		} );
+
+		fetch( CONFIG.ajax_url, {
+			method: 'POST',
+			credentials: 'same-origin',
+			body: formData,
+		} )
+			.then( function ( response ) {
+				return response.json();
+			} )
+			.then( function ( response ) {
+				if ( ! response || ! response.success ) {
+					return;
+				}
+
+				var data = response.data;
+				state.maxPages = data.max_pages;
+
+				if ( append ) {
+					grid.insertAdjacentHTML( 'beforeend', data.html );
+				} else {
+					grid.innerHTML = data.html || '<p class="epsw-no-results">' + CONFIG.i18n.noResults + '</p>';
+				}
+
+				grid.classList.remove( 'is-filtering' );
+
+				if ( typeof done === 'function' ) {
+					done();
+				}
+			} )
+			.catch( function () {
+				grid.classList.remove( 'is-filtering' );
+				if ( typeof done === 'function' ) {
+					done();
+				}
+			} );
+	}
+
+	if ( 'loading' === document.readyState ) {
+		document.addEventListener( 'DOMContentLoaded', init );
+	} else {
+		init();
+	}
+} )();

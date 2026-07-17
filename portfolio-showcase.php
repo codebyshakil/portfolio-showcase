@@ -3,7 +3,7 @@
  * Plugin Name:       Portfolio Showcase
  * Plugin URI:        https://wordpress.org/plugins/portfolio-showcase/
  * Description:       A lightweight, modern, dark-glassmorphism project portfolio showcase with category/technology filtering, AJAX filtering, unlimited shortcodes and a full admin management panel.
- * Version:           1.0.0
+ * Version:           1.0.17
  * Requires at least: 6.0
  * Requires PHP:      8.2
  * Author:            Your Name
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // ---------------------------------------------------------------------------
 // Core plugin constants.
 // ---------------------------------------------------------------------------
-define( 'EPSW_VERSION', '1.0.0' );
+define( 'EPSW_VERSION', '1.0.17' );
 define( 'EPSW_PLUGIN_FILE', __FILE__ );
 define( 'EPSW_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'EPSW_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
