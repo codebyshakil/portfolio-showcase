@@ -644,23 +644,7 @@ body.wp-admin .epsw-portfolio-grid {
 	}
 
 	.epsw-filter-mobile-toggle {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 30px;
-		height: 30px;
-		border-radius: 8px;
-		border: 1px solid var(--filter-border);
-		background: #fff;
-		color: var(--filter-muted);
-		cursor: pointer;
-		padding: 0;
-	}
-
-	.epsw-filter-mobile-toggle svg {
-		transition: transform 0.18s;
-		width: 16px;
-		height: 16px;
+		display: none !important;
 	}
 
 	.epsw-filter-desktop.collapsed .epsw-filter-mobile-toggle svg {
@@ -1674,14 +1658,7 @@ body.wp-admin .epsw-portfolio-grid {
 
 	.epsw-portfolio .epsw-filter-mobile-toggle,
 	.epsw-portfolio button.epsw-filter-mobile-toggle {
-		display: flex !important;
-		width: 24px !important;
-		height: 24px !important;
-		padding: 0 !important;
-		border: 0 !important;
-		background: transparent !important;
-		box-shadow: none !important;
-		color: #1f5eff !important;
+		display: none !important;
 	}
 
 	.epsw-portfolio.epsw-filter-has-open .epsw-filter-mobile-toggle svg {
@@ -2088,5 +2065,19 @@ body.wp-admin .epsw-portfolio-grid {
 	.epsw-portfolio .epsw-popular-grid.is-expanded .epsw-popular-chip-more,
 	.epsw-portfolio .epsw-popular-grid.is-expanded button.epsw-popular-chip-more {
 		display: none !important;
+	}
+}
+
+
+/* FORCE HIDE POPULAR TOGGLE ON MOBILE - FINAL OVERRIDE */
+@media (max-width: 780px) {
+	.epsw-popular-toggle,
+	button.epsw-popular-toggle,
+	.epsw-portfolio .epsw-popular-toggle,
+	.epsw-portfolio button.epsw-popular-toggle {
+		display: none !important;
+		visibility: hidden !important;
+		opacity: 0 !important;
+		pointer-events: none !important;
 	}
 }
