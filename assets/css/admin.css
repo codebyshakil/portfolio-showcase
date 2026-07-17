@@ -1,0 +1,571 @@
+/*!
+ * Estel Portfolio Showcase — Admin Styles
+ */
+
+.epsw-admin-wrap {
+	--epsw-primary: #2563eb;
+	--epsw-secondary: #60a5fa;
+	--epsw-dark: #111827;
+	--epsw-dark-2: #1a2436;
+	--epsw-border: rgba(255, 255, 255, 0.08);
+	--epsw-radius: 14px;
+	--epsw-transition: 300ms ease;
+
+	font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	max-width: 1400px;
+	margin-top: 20px;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Dark sidebar shell                                                      */
+/* ---------------------------------------------------------------------- */
+
+.epsw-shell {
+	display: flex;
+	align-items: stretch;
+	min-height: 720px;
+	background: var(--epsw-dark);
+	border-radius: 18px;
+	overflow: hidden;
+	box-shadow: 0 20px 50px rgba(17, 24, 39, 0.18);
+}
+
+.epsw-sidebar {
+	width: 240px;
+	flex: 0 0 240px;
+	background: linear-gradient(180deg, var(--epsw-dark), var(--epsw-dark-2));
+	border-right: 1px solid var(--epsw-border);
+	display: flex;
+	flex-direction: column;
+	padding: 26px 0;
+}
+
+.epsw-sidebar-brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 0 22px 26px;
+	margin-bottom: 10px;
+	border-bottom: 1px solid var(--epsw-border);
+}
+
+.epsw-sidebar-logo {
+	width: 34px;
+	height: 34px;
+	border-radius: 10px;
+	background: linear-gradient(135deg, var(--epsw-primary), var(--epsw-secondary));
+	color: #fff;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 13px;
+	flex-shrink: 0;
+}
+
+.epsw-sidebar-title {
+	color: #fff;
+	font-weight: 700;
+	font-size: 14px;
+	line-height: 1.3;
+}
+
+.epsw-sidebar-nav {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 0 12px;
+	flex: 1;
+}
+
+.epsw-sidebar-link {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 11px 14px;
+	border-radius: 10px;
+	color: #9ca3af;
+	text-decoration: none;
+	font-size: 13.5px;
+	font-weight: 500;
+	transition: background var(--epsw-transition), color var(--epsw-transition);
+}
+
+.epsw-sidebar-icon {
+	font-size: 14px;
+	width: 18px;
+	text-align: center;
+	flex-shrink: 0;
+}
+
+.epsw-sidebar-link:hover {
+	background: rgba(255, 255, 255, 0.05);
+	color: #fff;
+}
+
+.epsw-sidebar-link.is-active {
+	background: linear-gradient(135deg, var(--epsw-primary), var(--epsw-secondary));
+	color: #fff;
+	box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+}
+
+.epsw-sidebar-footer {
+	padding: 16px 22px 0;
+	margin-top: 14px;
+	border-top: 1px solid var(--epsw-border);
+	color: #6b7280;
+	font-size: 11px;
+}
+
+.epsw-content {
+	flex: 1;
+	min-width: 0;
+	background: #f4f5f7;
+	padding: 30px 32px 40px;
+	overflow-x: auto;
+}
+
+@media (max-width: 900px) {
+	.epsw-shell {
+		flex-direction: column;
+	}
+
+	.epsw-sidebar {
+		width: 100%;
+		flex: none;
+		flex-direction: row;
+		align-items: center;
+		padding: 14px 16px;
+		overflow-x: auto;
+	}
+
+	.epsw-sidebar-brand {
+		border-bottom: none;
+		padding: 0 14px 0 0;
+		margin-bottom: 0;
+		border-right: 1px solid var(--epsw-border);
+	}
+
+	.epsw-sidebar-nav {
+		flex-direction: row;
+		padding: 0 0 0 14px;
+	}
+
+	.epsw-sidebar-footer {
+		display: none;
+	}
+}
+
+.epsw-admin-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 22px;
+}
+
+.epsw-admin-header h1 {
+	font-size: 24px;
+	font-weight: 700;
+	margin: 0;
+	color: #111827;
+}
+
+.epsw-admin-card {
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	border-radius: var(--epsw-radius);
+	padding: 24px;
+	margin-bottom: 24px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.epsw-admin-card h2 {
+	margin-top: 0;
+	font-size: 16px;
+	font-weight: 600;
+}
+
+.epsw-form-grid {
+	display: grid;
+	grid-template-columns: 2fr 1fr;
+	gap: 24px;
+	align-items: start;
+}
+
+.epsw-form-grid-narrow {
+	grid-template-columns: 1.4fr 1fr;
+}
+
+@media (max-width: 960px) {
+	.epsw-form-grid,
+	.epsw-form-grid-narrow {
+		grid-template-columns: 1fr;
+	}
+}
+
+.epsw-field {
+	margin-bottom: 18px;
+}
+
+.epsw-field-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+}
+
+.epsw-field label {
+	display: block;
+	font-weight: 600;
+	font-size: 13px;
+	margin-bottom: 6px;
+	color: #1f2937;
+}
+
+.epsw-field-hint {
+	font-size: 12px;
+	color: #6b7280;
+	margin: 0 0 8px;
+}
+
+.epsw-empty-hint {
+	font-size: 12px;
+	color: #9ca3af;
+	margin: 0;
+}
+
+.epsw-required {
+	color: #ef4444;
+}
+
+.epsw-input {
+	width: 100%;
+	padding: 10px 14px;
+	border: 1px solid #d1d5db;
+	border-radius: 10px;
+	font-size: 14px;
+	transition: border-color var(--epsw-transition), box-shadow var(--epsw-transition);
+}
+
+.epsw-input:focus {
+	outline: none;
+	border-color: var(--epsw-primary);
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+textarea.epsw-input {
+	resize: vertical;
+}
+
+.epsw-checkbox-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px 18px;
+	max-height: 220px;
+	overflow-y: auto;
+	padding: 12px;
+	border: 1px solid #e5e7eb;
+	border-radius: 10px;
+	background: #f9fafb;
+}
+
+.epsw-checkbox-item {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 13px;
+	font-weight: 500;
+	color: #374151;
+}
+
+/* Buttons */
+
+.epsw-btn-admin {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 10px 20px;
+	font-size: 13.5px;
+	font-weight: 600;
+	border-radius: 10px;
+	border: 1px solid transparent;
+	cursor: pointer;
+	text-decoration: none;
+	transition: transform var(--epsw-transition), box-shadow var(--epsw-transition), background var(--epsw-transition);
+	font-family: inherit;
+}
+
+.epsw-btn-admin-primary {
+	background: linear-gradient(135deg, var(--epsw-primary), var(--epsw-secondary));
+	color: #fff;
+	box-shadow: 0 6px 16px rgba(37, 99, 235, 0.28);
+}
+
+.epsw-btn-admin-primary:hover {
+	transform: translateY(-1px);
+	color: #fff;
+	box-shadow: 0 10px 22px rgba(37, 99, 235, 0.35);
+}
+
+.epsw-btn-admin-ghost {
+	background: #fff;
+	color: #374151;
+	border-color: #d1d5db;
+}
+
+.epsw-btn-admin-ghost:hover {
+	border-color: var(--epsw-primary);
+	color: var(--epsw-primary);
+}
+
+.epsw-btn-full {
+	width: 100%;
+}
+
+/* Tables */
+
+.epsw-admin-table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 12px;
+}
+
+.epsw-admin-table th,
+.epsw-admin-table td {
+	text-align: left;
+	padding: 12px 14px;
+	border-bottom: 1px solid #eef0f2;
+	font-size: 13.5px;
+	vertical-align: middle;
+}
+
+.epsw-admin-table th {
+	background: #f9fafb;
+	font-weight: 600;
+	color: #374151;
+}
+
+.epsw-row-delete {
+	color: #ef4444;
+}
+
+.epsw-drag-col {
+	width: 30px;
+}
+
+.epsw-drag-handle {
+	cursor: grab;
+	color: #9ca3af;
+	font-weight: 700;
+	letter-spacing: -2px;
+	user-select: none;
+}
+
+.epsw-drag-handle:active {
+	cursor: grabbing;
+}
+
+.epsw-admin-table tbody tr.ui-sortable-helper {
+	display: table;
+	background: #fff;
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.epsw-admin-table tbody.epsw-sortable-rows tr {
+	background: #fff;
+}
+
+.epsw-admin-thumb {
+	width: 56px;
+	height: 40px;
+	object-fit: cover;
+	border-radius: 6px;
+	display: block;
+}
+
+.epsw-admin-thumb-empty {
+	width: 56px;
+	height: 40px;
+	border-radius: 6px;
+	background: linear-gradient(135deg, var(--epsw-dark), var(--epsw-dark-2));
+}
+
+.epsw-admin-tech-icon {
+	width: 22px;
+	height: 22px;
+	object-fit: contain;
+}
+
+.epsw-badge {
+	display: inline-block;
+	padding: 4px 10px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+}
+
+.epsw-badge-success {
+	background: #dcfce7;
+	color: #15803d;
+}
+
+.epsw-badge-muted {
+	background: #f3f4f6;
+	color: #6b7280;
+}
+
+.epsw-star {
+	display: inline-block;
+	font-size: 20px;
+	line-height: 1;
+	color: #d1d5db;
+	text-decoration: none;
+	transition: color var(--epsw-transition), transform var(--epsw-transition);
+}
+
+.epsw-star:hover {
+	color: #f59e0b;
+	transform: scale(1.15);
+}
+
+.epsw-star.is-active {
+	color: #f59e0b;
+}
+
+.epsw-featured-toggle {
+	font-weight: 600;
+	color: #92400e;
+	background: #fffbeb;
+	border: 1px solid #fde68a;
+	border-radius: 10px;
+	padding: 10px 14px;
+}
+
+.epsw-danger-toggle {
+	color: #991b1b;
+	background: #fef2f2;
+	border: 1px solid #fecaca;
+	border-radius: 10px;
+	padding: 10px 14px;
+}
+
+.epsw-import-form {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.epsw-import-form .epsw-field {
+	margin-bottom: 0;
+	flex: 1 1 260px;
+}
+
+/* Media picker */
+
+.epsw-media-picker,
+.epsw-icon-uploader {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.epsw-media-preview {
+	width: 100%;
+	min-height: 140px;
+	border: 1px dashed #d1d5db;
+	border-radius: 10px;
+	background: #f9fafb;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+}
+
+.epsw-media-preview img {
+	max-width: 100%;
+	max-height: 200px;
+	object-fit: cover;
+}
+
+.epsw-icon-preview {
+	width: 60px;
+	height: 60px;
+	border: 1px dashed #d1d5db;
+	border-radius: 10px;
+	background: #f9fafb;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.epsw-icon-preview img {
+	max-width: 36px;
+	max-height: 36px;
+	object-fit: contain;
+}
+
+.epsw-icon-upload-status {
+	font-size: 12px;
+	color: #6b7280;
+}
+
+/* Shortcodes page */
+
+.epsw-shortcode-text {
+	background: var(--epsw-dark);
+	color: #93c5fd;
+	padding: 6px 10px;
+	border-radius: 8px;
+	font-size: 12.5px;
+	display: inline-block;
+}
+
+.epsw-shortcode-preview {
+	margin-top: 18px;
+}
+
+.epsw-help-list {
+	margin: 0;
+	padding-left: 20px;
+	font-size: 13.5px;
+	line-height: 2;
+	color: #374151;
+}
+
+
+/* ---------------------------------------------------------------------- */
+/* Admin Protection - Prevent Frontend Styles from Loading in Admin      */
+/* ---------------------------------------------------------------------- */
+
+/* Ensure frontend portfolio grid and filters don't appear in admin */
+body.wp-admin .epsw-portfolio-grid,
+body.wp-admin .epsw-filters,
+body.wp-admin .epsw-filter-row,
+body.wp-admin .epsw-filter-btn,
+body.wp-admin .epsw-project-card,
+body.wp-admin .epsw-load-more-wrap {
+	display: none !important;
+}
+
+/* Ensure admin pages use admin styles only */
+.epsw-admin-wrap .epsw-portfolio-grid,
+.epsw-admin-wrap .epsw-filters,
+.epsw-admin-wrap .epsw-filter-row,
+.epsw-admin-wrap .epsw-filter-btn,
+.epsw-admin-wrap .epsw-project-card {
+	display: none !important;
+}
+
+/* Protect admin layout from frontend interference */
+body.wp-admin #epsw-portfolio-container {
+	display: none !important;
+}
+
+/* Ensure Elementor editor doesn't break admin */
+.elementor-editor-active .epsw-admin-wrap {
+	position: relative;
+	z-index: 1;
+}
